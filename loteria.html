@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lamng="es">
+<head>
+	<title>Generar loteria , profesota barbara sporman</title>
+	<style type="text/css">
+		table{
+			border-collapse:collapse;
+			display: inline-block;
+			margin: 5px 5px;
+		}
+		span{
+			font-size: 15px;
+			padding: 2px 4px;
+			color: white;
+			background: rgba(206,191,191,0.3);
+			border-radius: 10px 10px 10px 10px;
+		}
+		table tr {
+			background-color: #0E6D9C;
+		}
+		td{
+			padding: 3px;
+			margin: 0px 0px;
+		}
+		tr:first-child {
+			background-color: #0E6D9C;
+		}
+		tr:last-child {
+			background-color: #0E6D9C;
+		}
+		tr:first-child td:first-child{
+			border-radius: 10px 0px 0px 0px;
+		}
+		tr:first-child td:last-child{
+			border-radius: 0px 10px 0px 0px;
+		}
+		tr:last-child td:first-child{
+			border-radius: 0px 0px 0px 10px;
+		}
+		tr:last-child td:last-child{
+			border-radius: 0px 0px 10px 0px;
+		}
+	</style>
+	<script type="text/javascript">
+		
+		window.onload = function(){
+			var texto = document.getElementById('fontsize');
+			texto.addEventListener('change', function(e){
+				var spanes = document.getElementsByTagName('span');
+				for(var i=0;i<spanes.length;i++){
+					spanes[i].style.fontSize = this.value+'px';
+				}
+			},false);
+		};
+		function pintaTargetas(){
+			console.log('se esta ejecutando el worker');
+			var ntar = document.getElementById('ntar').value;
+			var max = document.getElementById('max').value;
+			var f = document.getElementById('fila').value;
+			var c = document.getElementById('columna').value;
+			var articulo = document.getElementById('articulo');
+			articulo.innerHTML = "";
+			var workers = [];
+			for(var i=0;i<(ntar/2);i++){
+				tempw = new Worker('worker.js');
+				workers.push(tempw);
+			}
+			for (var i =0;i<workers.length;i++){
+				workers[i].postMessage({
+			        'f': f,
+			        'c': c,
+			        'max': max,
+			        'ntar':2
+		    	});
+		    	workers[i].addEventListener('message',function(wevent){
+					articulo.innerHTML += wevent.data.tabla;
+				},false);
+			}
+			/*w = new Worker('worker.js');
+			w.postMessage({
+		        'f': f,
+		        'c': c,
+		        'max': max,
+		        'ntar':ntar
+	    	});
+			w.addEventListener('message',function(wevent){
+				console.log('X');
+				articulo.innerHTML += wevent.data.tabla;
+			},false);*/
+			/*for (var i=0;i<ntar;i++){
+				var t = generaTargeta(f,c,max);
+				articulo.innerHTML += tabla(t)+"<br>";
+			}*/
+		}
+	</script>
+</head>
+<body>
+	<header>
+		<form>
+			<b>Numero de Targetas<input type="number" id="ntar" min="1" max="50" step="1" value="40"></b>
+			<b>Maxmimo<input type="number" id="max" min="1" max="100" step="1" value="100"></b>
+			<b>Filas<input type="number" id="fila" min="1" max="10" step="1" value="5"></b>
+			<b>Columnas<input type="number" id="columna" min="1" max="10" step="1" value="6"></b>
+			<input type="button" value="Generar" onclick="pintaTargetas()"/>
+		</form>
+		<br>
+		<b>Tamaño de texto <input type="range" id="fontsize" min="5" max="50" step="1" value="15" /></b>
+	</header>
+<section>
+	<article id="articulo"></article>
+</section>
+</body>
+</html>
